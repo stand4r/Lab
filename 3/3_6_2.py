@@ -10,6 +10,9 @@ for i in s:
            m = len(st)
            m_st = st
         st = ""
+if len(st) > m:
+    m = len(st)
+    m_st = st
 
 print(f"Самое длинное слово: {m_st}\nДлина слова: {m}")
 

@@ -21,4 +21,3 @@ for i in matrix:
             even += x
             count+= 1
 print("Среднее значение нечетных элементов =", round(even/count, 2))
-

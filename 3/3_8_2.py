@@ -1,5 +1,5 @@
 from random import randint
-arr = [[[randint(-100, 100) for _ in range(2)] for _ in range(2)], [[randint(-100, 100) for _ in range(3)] for _ in range(2)], [[randint(-100, 100) for _ in range(3)] for _ in range(3)]]
+arr = [[[randint(-100, 100) for _ in range(2)] for _ in range(2)], [[randint(-100, 100) for _ in range(3)] for _ in range(2)], [[randint(-100, 100) for _ in range(2)] for _ in range(3)]]
 print("Исходные матрицы")
 for matrix in arr:
     for i in matrix:
@@ -16,3 +16,4 @@ for matrix in arr:
         print(m)
         S+=m
         m = 101
+print(f"Сумма: {S}")
