@@ -52,7 +52,7 @@ collector.add_book(Book("Dahl", "Matilda", Theme.CHILDREN))
 collector.add_book(Book("Sagan", "Cosmos", Theme.SCIENCE))
 
 # Создание 2 наборов книг
-book_sets = collector.distribute_books(2)
+book_sets = collector.distribute_books(int(input("Количество наборов: ")))
 
 # Вывод наборов книг
 for set_number, books in book_sets.items():

@@ -10,7 +10,7 @@ class Time:
             self.__hours = hours
         else:
             raise ValueError("Недопустимое значение часов")
-    
+
     def set_minutes(self, minutes):
         if 0 <= minutes < 60:
             self.__minutes = minutes
@@ -45,20 +45,15 @@ class Time:
     def add_hours(self, hours):
         self.__hours = (self.__hours + hours) % 24
 
+    def print(self):
+        print( f"{self.__hours:02d}:{self.__minutes:02d}:{self.__seconds:02d}")
+
 # Демонстрационная программа:
 if __name__ == "__main__":
     try:
-        time1 = Time(23, 59, 30)
-        print(time1)
-        time1.add_seconds(45)  # Добавляем секунды, что приводит к изменению минут и часов
-        print(time1)
-        
-        time2 = Time(12, 30, 0)
-        print(time2)
-        time2.add_hours(12)  # Добавляем часы
-        print(time2)
-        
-        # Пример с недопустимым значением
-        time3 = Time(-1, 66, 30)
-    except ValueError as e:
-        print(f"Ошибка: {e}")
+        time_p = input("Введите время: ").split(":")
+        time = Time(int(time_p[0]), int(time_p[1]), int(time_p[2]))
+        time.add_seconds(350)
+        print(time)
+    except ValueError:
+        print("Недопустимое значение")
