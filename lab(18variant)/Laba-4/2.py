@@ -1,49 +1,54 @@
-# Вариант 3
-
 from enum import Enum
-import random
-
 
 class Theme(Enum):
-    MATH = "Математика"
-    PHYSICS = "Физика"
-    CHEMISTRY = "Химия"
-    HISTORY = "История"
-    LITERATURE = "Литература"
-
+    MATH = 1
+    PHYSICS = 2
+    COMPUTER_SCIENCE = 3
+    HISTORY = 4
+    LITERATURE = 5
 
 class Question:
-    def __init__(self, title, theme):
-        self.title = title
+    def __init__(self, name, theme):
+        self.name = name
         self.theme = theme
 
+def distribute_questions(questions, n):
+    # Sort questions by name
+    questions.sort(key=lambda x: x.name)
 
-class TestSet:
-    def __init__(self, questions):
-        self.questions = questions
+    # Initialize test sets
+    test_sets = [[] for _ in range(n)]
 
+    # Distribute questions to test sets
+    for i, question in enumerate(questions):
+        test_sets[i % n].append(question)
 
-def distribute_questions(questions, num_sets):
-    sets = [[] for _ in range(num_sets)]
+    return test_sets
 
-    for question in questions:
-        random_set = random.choice(sets)
-        random_set.append(question)
+# Example usage
+questions = [
+    Question("What is 2+2?", Theme.MATH),
+    Question("What is the speed of light?", Theme.PHYSICS),
+    Question("What is Python?", Theme.COMPUTER_SCIENCE),
+    Question("Who was Napoleon?", Theme.HISTORY),
+    Question("What is the meaning of life?", Theme.LITERATURE),
+    Question("What is the derivative of x^2?", Theme.MATH),
+    Question("What is the atomic mass of carbon?", Theme.PHYSICS),
+    Question("What is the difference between Python 2 and 3?", Theme.COMPUTER_SCIENCE),
+    Question("What was the Treaty of Versailles?", Theme.HISTORY),
+    Question("What is the theme of To Kill a Mockingbird?", Theme.LITERATURE),
+    Question("What is the Pythagorean theorem?", Theme.MATH),
+    Question("What is Newton's second law?", Theme.PHYSICS),
+    Question("What is object-oriented programming?", Theme.COMPUTER_SCIENCE),
+    Question("Who was the first president of the United States?", Theme.HISTORY),
+    Question("What is the plot of Pride and Prejudice?", Theme.LITERATURE),
+]
 
-    return [TestSet(test) for test in sets]
-
-
-num_questions = int(input("Введите количество вопросов: "))
-questions = []
-for _ in range(num_questions):
-    title = input("Введите название вопроса: ")
-    theme = input("Введите тематику вопроса (MATH, PHYSICS, CHEMISTRY, HISTORY, LITERATURE): ")
-    questions.append(Question(title, Theme[theme]))
-
-num_sets = int(input("Введите количество наборов тестов: "))
-test_sets = distribute_questions(questions, num_sets)
+n = int(input("Введите количество тестов: "))
+test_sets = distribute_questions(questions, n)
 
 for i, test_set in enumerate(test_sets):
-    print(f"Набор тестов {i + 1}:")
-    for question in test_set.questions:
-        print(f"- {question.title} ({question.theme.value})")
+    print(f"Test Set {i+1}:")
+    for question in test_set:
+        print(f"  {question.name} ({question.theme.name})")
+    print()

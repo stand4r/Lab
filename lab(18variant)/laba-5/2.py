@@ -1,69 +1,87 @@
-#Вариант 18
 import tkinter as tk
-from tkinter import ttk
+from tkinter import messagebox
+import time
+import math
 
-class TaylorSeries:
-    @staticmethod
-    def ln_series(x):
-        result = 0
-        term = x - 1
-        n = 1
-        while n <= 10:  
-            result += term / (n * x**n)
-            term *= (x - 1) / x
+class TaylorSeriesCalculator:
+    def init(self):
+        pass
+
+    def calculate_cosine(self, x, epsilon):
+        sum = 0
+        n = 0
+        term = 1  # Начальный член ряда равен 1, что правильно для 0-го элемента (чётные степени).
+
+        while abs(term) > epsilon:
+            sum += term
+            term *= -x * x / ((2 * n + 1) * (2 * n + 2))
             n += 1
-        return result
 
-def calculate():
-    try:
-        x1 = float(entry_x1.get())
-        x2 = float(entry_x2.get())
-        delta_x = float(entry_delta_x.get())
+        return sum, n
 
-        table = []
-        x = x1
-        while x <= x2:
-            taylor_result = TaylorSeries.ln_series(x)
-            table.append((x, taylor_result))
-            x += delta_x
+    def calculate_cosine_with_stats(self, x, epsilon):
+        sum, n = self.calculate_cosine(x, epsilon)
+        math_cos = math.cos(x)
+        difference = abs(sum - math_cos)
 
-        for row in table:
-            tree.insert("", "end", values=row)
-    except ValueError:
-        result_label.config(text="Пожалуйста, введите корректные значения", fg="red")
+        return sum, math_cos, difference, n
 
-root = tk.Tk()
-root.title("Вычисление ln(x)")
-root.geometry("600x400")
+class TaylorSeriesCalculatorApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Taylor Series Calculator")
 
-frame = ttk.Frame(root)
-frame.pack(padx=10, pady=10, fill="both", expand=True)
+        self.x1_label = tk.Label(root, text="1x:")
+        self.x1_label.grid(row=0, column=0)
+        self.x1_entry = tk.Entry(root)
+        self.x1_entry.grid(row=0, column=1)
 
-label_x1 = ttk.Label(frame, text="x1:")
-label_x1.grid(row=0, column=0, padx=5, pady=5)
-entry_x1 = ttk.Entry(frame)
-entry_x1.grid(row=0, column=1, padx=5, pady=5)
+        self.x2_label = tk.Label(root, text="2x:")
+        self.x2_label.grid(row=1, column=0)
+        self.x2_entry = tk.Entry(root)
+        self.x2_entry.grid(row=1, column=1)
 
-label_x2 = ttk.Label(frame, text="x2:")
-label_x2.grid(row=1, column=0, padx=5, pady=5)
-entry_x2 = ttk.Entry(frame)
-entry_x2.grid(row=1, column=1, padx=5, pady=5)
+        self.delta_x_label = tk.Label(root, text="xΔ:")
+        self.delta_x_label.grid(row=2, column=0)
+        self.delta_x_entry = tk.Entry(root)
+        self.delta_x_entry.grid(row=2, column=1)
 
-label_delta_x = ttk.Label(frame, text="Δx:")
-label_delta_x.grid(row=2, column=0, padx=5, pady=5)
-entry_delta_x = ttk.Entry(frame)
-entry_delta_x.grid(row=2, column=1, padx=5, pady=5)
+        self.epsilon_label = tk.Label(root, text="ε:")
+        self.epsilon_label.grid(row=3, column=0)
+        self.epsilon_entry = tk.Entry(root)
+        self.epsilon_entry.grid(row=3, column=1)
 
-calculate_button = ttk.Button(frame, text="Рассчитать", command=calculate)
-calculate_button.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+        self.calculate_button = tk.Button(root, text="Рассчитать", command=self.calculate)
+        self.calculate_button.grid(row=4, column=0, columnspan=2)
 
-result_label = ttk.Label(frame, text="", foreground="red")
-result_label.grid(row=4, column=0, columnspan=2)
+        self.result_text = tk.Text(root)
+        self.result_text.grid(row=5, column=0, columnspan=2)
 
-columns = ("x", "Функция (ряд Тейлора)")
-tree = ttk.Treeview(frame, columns=columns, show="headings")
-for col in columns:
-    tree.heading(col, text=col)
-tree.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+    def calculate(self):
+        try:
+            x1 = float(self.x1_entry.get())
+            x2 = float(self.x2_entry.get())
+            delta_x = float(self.delta_x_entry.get())
+            epsilon = float(self.epsilon_entry.get())
 
-root.mainloop()
+            calculator = TaylorSeriesCalculator()
+            start_time = time.time()
+
+            self.result_text.delete(1.0, tk.END)
+            self.result_text.insert(tk.INSERT, "  Argument\t  Taylor Series\t  Math.Cos\t  Difference\t  Terms\n")
+
+            for x in range(int((x2 - x1) / delta_x) + 1):
+                x_value = x1 + x * delta_x
+                sum, math_cos, difference, n = calculator.calculate_cosine_with_stats(x_value, epsilon)
+                self.result_text.insert(tk.INSERT, f"{round(x_value, 2):>10}\t{round(sum, 2):>15}\t{round(math_cos, 2):>10}\t{round(difference, 2):>12}\t{n:>7}\n")
+
+            end_time = time.time()
+            messagebox.showinfo("Calculation Time", f"Calculation took {end_time - start_time:.2f} seconds")
+
+        except ValueError:
+            messagebox.showerror("Invalid Input", "Please enter valid numbers")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = TaylorSeriesCalculatorApp(root)
+    root.mainloop()
