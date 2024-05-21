@@ -1,112 +1,172 @@
-# Вариант 3
-import tkinter as tk
-from tkinter import messagebox
-from tkinter import scrolledtext
 import random
+import tkinter as tk
 
-class СписокМассива:
+class DynamicArray:
     def __init__(self):
-        self._данные = []
+        self.array = []
+        self.capacity = 30
 
-    def add(self, значение):
-        self._данные.append(значение)
-
-    def add_to_index(self, индекс, значение):
-        self._данные.insert(индекс, значение)
-
-    def resize_hg(self, новый_размер):
-        if новый_размер >= len(self._данные):
-            self._данные.extend([0] * (новый_размер - len(self._данные)))
+    def add(self, index, value):
+        if len(self.array) < self.capacity:
+            self.array.insert(index, value)
         else:
-            self._данные = self._данные[:новый_размер]
+            self.resize(self.capacity * 2)
+            self.add(index, value)
 
-    def det_elem(self):
-        return self._данные
+    def add_multiple(self, values):
+        for value in values:
+            self.add(len(self.array), value)
 
-class Делегат:
-    @staticmethod
-    def find_max(список_массива):
-        if not список_массива:
-            return None
-        return max(список_массива)
+    def add_to_beginning(self, values):
+        for value in values:
+            self.add(0, value)
 
-    @staticmethod
-    def find_min(список_массива):
-        if not список_массива:
-            return None
-        return min(список_массива)
+    def resize(self, new_capacity):
+        new_array = [None] * new_capacity
+        for i in range(len(self.array)):
+            new_array[i] = self.array[i]
+        self.array = new_array
+        self.capacity = new_capacity
 
-    @staticmethod
-    def fiind_avrg(список_массива):
-        if not список_массива:
-            return None
-        return sum(список_массива) / len(список_массива)
+    def get_delegate(self):
+        return Delegate(self.array)
 
-    @staticmethod
-    def find_sum(список_массива):
-        if not список_массива:
-            return None
-        return sum(список_массива)
+class Delegate:
+    def __init__(self, array):
+        self.array = array
 
-class Приложение:
+    def find_max(self):
+        return max(self.array)
+
+    def find_min(self):
+        return min(self.array)
+
+    def find_average(self):
+        return sum(self.array) / len(self.array)
+
+    def find_sum(self):
+        return sum(self.array)
+
+class DynamicArrayApp:
     def __init__(self, master):
         self.master = master
-        self.список_массива = СписокМассива()
+        self.dynamic_array = DynamicArray()
+        self.delegate = self.dynamic_array.get_delegate()
 
-        self.label = tk.Label(master, text="Демонстрация Списка Массива", font=("Arial", 18))
-        self.label.pack()
+        self.label_capacity = tk.Label(master, text="Емкость: 30")
+        self.label_capacity.pack()
 
-        self.text_area = scrolledtext.ScrolledText(master, width=40, height=10)
-        self.text_area.pack()
+        self.label_size = tk.Label(master, text="Размер: 0")
+        self.label_size.pack()
 
-        self.add_button = tk.Button(master, text="Добавить Случайный Элемент", command=self.add_random_element)
-        self.add_button.pack()
+        self.label_values = tk.Label(master, text="Значения:")
+        self.label_values.pack()
 
-        self.addAtind_frame = tk.Frame(master)
-        self.addAtind_frame.pack()
-        tk.Label(self.addAtind_frame, text="Индекс:").grid(row=0, column=0)
-        tk.Label(self.addAtind_frame, text="Значение:").grid(row=0, column=2)
-        self.index_entry = tk.Entry(self.addAtind_frame)
-        self.index_entry.grid(row=0, column=1)
-        self.value_entry = tk.Entry(self.addAtind_frame)
-        self.value_entry.grid(row=0, column=3)
-        self.addAtind_button = tk.Button(self.addAtind_frame, text="Добавить Элемент по Индексу", command=self.add_element_at_index)
-        self.addAtind_button.grid(row=0, column=4)
+        self.text_values = tk.Text(master, height=10, width=70)
+        self.text_values.pack()
 
-        self.resize_frame = tk.Frame(master)
-        self.resize_frame.pack()
-        tk.Label(self.resize_frame, text="Новый Размер:").grid(row=0, column=0)
-        self.new_size_entry = tk.Entry(self.resize_frame)
-        self.new_size_entry.grid(row=0, column=1)
-        self.resize_button = tk.Button(self.resize_frame, text="Изменить Размер Списка", command=self.resize_array_list)
-        self.resize_button.grid(row=0, column=2)
+        self.button_add = tk.Button(master, text="Добавить элемент", command=self.add_element)
+        self.button_add.pack()
 
-        self.delegate_button = tk.Button(master, text="Делегировать Операции", command=self.delegate_operations)
-        self.delegate_button.pack()
+        self.button_add_multiple = tk.Button(master, text="Добавить несколько элементов", command=self.add_multiple_elements)
+        self.button_add_multiple.pack()
 
-    def add_random_element(self):
-        случайное_значение = random.uniform(0, 100)
-        self.список_массива.add(случайное_значение)
-        self.update_text_area()
+        self.button_add_to_beginning = tk.Button(master, text="Добавить элементы в начало", command=self.add_to_beginning)
+        self.button_add_to_beginning.pack()
+        
+        self.button_print = tk.Button(master, text="Вывести массив", command=self.print_array)
+        self.button_print.pack()
 
-    def add_element_at_index(self):
-        try:
-            индекс = int(self.index_entry.get())
-            значение = float(self.value_entry.get())
-            self.список_массива.add_to_index(индекс, значение)
-            self.update_text_area()
-        except ValueError:
-            messagebox.showerror("Ошибка", "Неверный ввод! Пожалуйста, введите корректный индекс и значение.")
+        self.button_find_max = tk.Button(master, text="Найти максимум", command=self.find_max)
+        self.button_find_max.pack()
 
-    def resize_array_list(self):
-        try:
-            новый_размер = int(self.new_size_entry.get())
-            self.список_массива.resize_hg(новый_размер)
-            self.update_text_area()
-        except ValueError:
-            messagebox.showerror("Ошибка", "Неверный ввод! Пожалуйста, введите корректный размер.")
+        self.button_find_min = tk.Button(master, text="Найти минимум", command=self.find_min)
+        self.button_find_min.pack()
 
-    def delegate_operations(self):
-        элементы = self.список_массива.det_elem()
-        if not элементы:
-            messagebox.show
+        self.button_find_average = tk.Button(master, text="Найти среднее", command=self.find_average)
+        self.button_find_average.pack()
+
+        self.button_find_sum = tk.Button(master, text="Найти сумму", command=self.find_sum)
+        self.button_find_sum.pack()
+    
+    def print_array(self):
+        self.text_values.delete(1.0, tk.END)
+        self.text_values.config(state=tk.NORMAL)
+        self.text_values.insert(tk.END, "\n{}".format(self.dynamic_array.array))
+        self.text_values.config(state=tk.DISABLED)
+
+    def add_element(self):
+        value_entry = tk.Entry(self.master)
+        value_entry.pack()
+        value_entry.focus()
+        value_button = tk.Button(self.master, text="Добавить", command=lambda: self.add_value(value_entry.get()))
+        value_button.pack()
+
+    def add_value(self, value):
+        value = float(value)
+        self.dynamic_array.add(len(self.dynamic_array.array), value)
+        self.update_values()
+
+    def add_multiple_elements(self):
+        values_entry = tk.Entry(self.master)
+        values_entry.pack()
+        values_entry.focus()
+        values_button = tk.Button(self.master, text="Добавить", command=lambda: self.add_multiple_values(values_entry.get().split()))
+        values_button.pack()
+
+    def add_multiple_values(self, values):
+        values = [float(value) for value in values]
+        self.dynamic_array.add_multiple(values)
+        self.update_values()
+
+    def add_to_beginning(self):
+        values_entry = tk.Entry(self.master)
+        values_entry.pack()
+        values_entry.focus()
+        values_button = tk.Button(self.master, text="Добавить", command=lambda: self.add_multiple_values_to_beginning(values_entry.get().split()))
+        values_button.pack()
+
+    def add_multiple_values_to_beginning(self, values):
+        values = [float(value) for value in values]
+        self.dynamic_array.add_to_beginning(values)
+        self.update_values()
+
+    def find_max(self):
+        self.text_values.delete(1.0, tk.END)
+        max_value = self.delegate.find_max()
+        self.text_values.config(state=tk.NORMAL)
+        self.text_values.insert(tk.END, "Максимальное значение: {}\n".format(max_value))
+        self.text_values.config(state=tk.DISABLED)
+
+    def find_min(self):
+        self.text_values.delete(1.0, tk.END)
+        min_value = self.delegate.find_min()
+        self.text_values.config(state=tk.NORMAL)
+        self.text_values.insert(tk.END, "Минимальное значение: {}\n".format(min_value))
+        self.text_values.config(state=tk.DISABLED)
+
+    def find_average(self):
+        self.text_values.delete(1.0, tk.END)
+        average_value = self.delegate.find_average()
+        self.text_values.config(state=tk.NORMAL)
+        self.text_values.insert(tk.END, "Среднее значение: {}\n".format(average_value))
+        self.text_values.config(state=tk.DISABLED)
+
+    def find_sum(self):
+        self.text_values.delete(1.0, tk.END)
+        sum_value = self.delegate.find_sum()
+        self.text_values.config(state=tk.NORMAL)
+        self.text_values.insert(tk.END, "Сумма значений: {}\n".format(sum_value))
+        self.text_values.config(state=tk.DISABLED)
+
+    def update_values(self):
+        self.label_capacity.config(text="Емкость: {}".format(self.dynamic_array.capacity))
+        self.label_size.config(text="Размер: {}".format(len(self.dynamic_array.array)))
+        self.text_values.delete(1.0, tk.END)
+        for value in self.dynamic_array.array:
+            self.text_values.insert(tk.END, "{} ".format(value))
+        self.text_values.config(state=tk.DISABLED)
+
+root = tk.Tk()
+app = DynamicArrayApp(root)
+root.mainloop()

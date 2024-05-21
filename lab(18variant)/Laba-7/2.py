@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 
 class Person(ABC):
-    def constructor(self, name, age):
+    def __init__(self, name, age):
         self.name = name
         self.age = age
     
@@ -12,15 +12,15 @@ class Person(ABC):
         pass
 
 class OwnerOfCar(Person):
-    def constructor(self, name, age, car):
-        super().constructor(name, age)
+    def __init__(self, name, age, car):
+        super().__init__(name, age)
         self.car = car
     
     def get_details(self):
         return f"Владелец: {self.name}, Возраст: {self.age}, Машина: {self.car.model}"
 
 class Car:
-    def constructor(self, model, owner=None):
+    def __init__(self, model, owner=None):
         self.model = model
         self.owner = owner
     
@@ -28,7 +28,7 @@ class Car:
         self.owner = owner
 
 class Parking:
-    def constructor(self):
+    def __init__(self):
         self.cars = []
     
     def add_car(self, car):
