@@ -1,4 +1,3 @@
-# Вариант 6
 import tkinter as tk
 from tkinter import ttk
 from tkinter.simpledialog import Dialog
@@ -12,9 +11,26 @@ class Object:
         self.range = range_
         self.cost = cost
 
+    @classmethod
+    def from_values(cls, values):
+        name, hp, attack, defense, range_, cost = values[:6]
+        return cls(name, int(hp), attack, int(defense), int(range_), int(cost))
+
 class Building(Object):
     def __init__(self, name, hp, attack, defense, range_, cost):
         super().__init__(name, hp, attack, defense, range_, cost)
+
+    @classmethod
+    def from_values(cls, values):
+        name, hp, attack, defense, range_, cost = values[:6]
+        if name == "WatchTower":
+            return WatchTower()
+        elif name == "GuardTower":
+            return GuardTower()
+        elif name == "CannonTower":
+            return CannonTower()
+        else:
+            return cls(name, int(hp), attack, int(defense), int(range_), int(cost))
 
 class WatchTower(Building):
     def __init__(self):
@@ -24,11 +40,17 @@ class GuardTower(WatchTower):
     def __init__(self):
         super().__init__()
         self.name = "GuardTower"
+        self.hp = self.hp + 100
+        self.defense = self.defense + 5
+        self.attack = "25-30"
 
 class CannonTower(WatchTower):
     def __init__(self):
         super().__init__()
         self.name = "CannonTower"
+        self.hp = self.hp + 200
+        self.defense = self.defense + 20
+        self.attack = "45-50"
 
 class GameApp(tk.Tk):
     def __init__(self):
@@ -63,8 +85,8 @@ class GameApp(tk.Tk):
         object_id = self.tree.insert("", "end", text="Object")
         building_id = self.tree.insert("", "end", text="Building", values=("", "", "", "", "", "", ""))
         self.tree.insert(object_id, "end", text="WatchTower", values=("WatchTower", 800, "15-20", 5, 1, 600, "-"))
-        self.tree.insert(building_id, "end", text="GuardTower", values=("GuardTower", 800, "15-20", 5, 1, 600, "-"))
-        self.tree.insert(building_id, "end", text="CannonTower", values=("CannonTower", 800, "15-20", 5, 1, 600, "-"))
+        self.tree.insert(building_id, "end", text="GuardTower", values=("GuardTower", 900, "25-30", 10, 1, 600, "-"))
+        self.tree.insert(building_id, "end", text="CannonTower", values=("CannonTower", 1000, "45-50", 25, 1, 600, "-"))
 
     def on_item_double_click(self, event):
         selected_items = self.tree.selection()
@@ -78,7 +100,11 @@ class GameApp(tk.Tk):
             edit_dialog = EditDialog(self, item_values)
 
             if edit_dialog.updated_values:
-                self.tree.item(item_id, values=edit_dialog.updated_values)
+                new_object = Building.from_values(edit_dialog.updated_values)
+                self.update_tree_item(item_id, new_object)
+
+    def update_tree_item(self, item_id, new_object):
+        self.tree.item(item_id, values=(new_object.name, new_object.hp, new_object.attack, new_object.defense, new_object.range, new_object.cost, "-"))
 
 class EditDialog(Dialog):
     def __init__(self, parent, item_values):
